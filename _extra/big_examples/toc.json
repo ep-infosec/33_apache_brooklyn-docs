@@ -1,0 +1,13 @@
+[
+{ "title": "Elastic Web Cluster",
+  "file":  "/guide/use/examples/webcluster/index.html" },
+{ "title": "Global Web Fabric",
+  "file":  "/guide/use/examples/global-web-fabric/index.html" },
+{ "title": "Whirr Hadoop Cluster",
+  "file":  "/guide/use/examples/whirrhadoop/index.html" },
+{ "title": "Publish-Subscribe Messaging",
+  "file":  "/guide/use/examples/messaging/index.html" },
+{ "title": "Cassandra Cluster",
+  "file":  "/guide/use/examples/nosql-cassandra/index.html" }
+
+]

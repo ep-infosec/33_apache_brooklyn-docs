@@ -1,0 +1,54 @@
+name: Ansible+SSH HTTPD Web App
+
+# most any CentOS/RHEL environment should work
+location: amazon-us-east-1-fast-centos
+
+services:
+  - type: org.apache.brooklyn.entity.software.base.WorkflowSoftwareProcess
+    brooklyn.config:
+      install.workflow:
+        steps:
+          - id: install-ansible
+            type: workflow
+            steps:
+              - ssh sudo yum update -y
+              - ssh sudo yum install -y epel-release
+              - ssh sudo yum install -y ansible
+              - ssh sudo yum install -y unzip
+
+          - id: install-httpd-with-ansible
+            type: ansible-ssh
+            input:
+              playbook_yaml:
+                - name: Ensure httpd is running
+                  hosts: localhost
+                  become: yes
+                  tasks:
+                    - name: ensure apache is at the latest version
+                      yum:
+                        name: httpd
+                        state: latest
+                    - name: ensure apache is running
+                      service:
+                        name: httpd
+                        state: started
+
+          # confirm it is running and return stdout
+          - ssh ps aux | grep httpd
+          - return ${stdout}
+
+      files.runtime:
+        https://github.com/cloudsoft/hello-world-html/archive/refs/heads/main.zip: hello-world.zip
+      launch.workflow:
+        steps:
+          - ssh rm -rf hello-world-html-main/
+          - ssh unzip ${entity.driver.runDir}/hello-world.zip
+          - ssh sudo cp hello-world-html-main/* /var/www/html/
+          - set-sensor main.uri = http://${entity.sensor['host.address']}/
+      checkRunning.workflow:
+        steps:
+          - step: http ${entity.sensor['main.uri']}
+            timeout: 10s
+            on-error:
+              - return false
+          - return true
